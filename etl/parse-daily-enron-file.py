@@ -12,6 +12,7 @@ from datetime import datetime
 # Stats Counters
 sender_counter = Counter()
 receiver_counter = Counter()
+connections_counter = Counter()  #  Counter for the connection extension for Neo4j
 row_number = 0
 
 
@@ -66,6 +67,17 @@ def statistics_updater(email_):
     for receiver in email_['recipients']:
         receiver_counter[receiver] += 1
 
+
+def network_updater(email_):
+    """The function extract from the email dictionary, the sender and receiver(s)
+    and update the related counters.
+    :param email_:dictionary of one row
+    :return:
+    """
+    for receiver in email_['recipients']:
+        connection= "{}-{}".format(email_['sender'],receiver)
+    print(connection)
+    connections_counter[connection] += 1
 
 def statistics_final(input_file_):
     """ The function consolidate the counters for the received and send emails
@@ -133,9 +145,11 @@ if __name__ == "__main__":
             write_json(email, row_number, input_file)
 
             statistics_updater(email)
+            network_updater(email)
 
         csv_file.close()
 
         archive_file(input_file)
 
         statistics_final(input_file)
+        print(connections_counter)
